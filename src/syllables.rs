@@ -4,13 +4,19 @@ use itertools::Itertools;
 
 const CONSONANTS: [char; 18] = ['b','c','d','f','h','k','l','m','n','p','q','r','s','t','v','w','x','z'];
 const VOWELS: [char; 6] = ['a','e','i','o','u','y'];
+#[derive(Debug)]
+#[derive(PartialEq)]
+pub struct Word {
+    pub text: String,
+    pub syllables: u32,
+}
 
-pub fn syllables<T: Into<String>> (input: T) -> u32 {
+pub fn syllables<T: Into<String>> (input: T) -> Vec<Word> {
     input.into()
          .split_ascii_whitespace()
          .into_iter()
-         .map(syllables_word)
-         .fold(0,|acc,x| acc + x)
+         .map(|x| Word{text: x.into(), syllables: syllables_word(x)})
+         .collect()
 }
 
 fn syllables_word (input: &str) -> u32 {

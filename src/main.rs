@@ -1,4 +1,4 @@
-use raiku::{self, syllables::syllables};
+use raiku;
 fn main() {
-    println!("{:?}", syllables("this is a test of words"))
+    println!("{}", raiku::haiku("this is a test of the way haiku is made here that is kind of cool").unwrap())
 }

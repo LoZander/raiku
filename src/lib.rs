@@ -29,11 +29,11 @@ fn verse(words: Vec<Word>, n: u32) -> Option<(String,Vec<Word>)> {
     let (verse, rest, count) = words.into_iter()
          .fold(Some((String::new(), vec![], 0)), |option, word| {
             option.and_then(|(acc, mut rest, count)| {
-                let syllables = count + word.syllables;
-                println!("count = {:?}, syllables = {:?}", count, syllables);
+                let syllables = count + word.syllables.len() as u32;
+                println!("count = {:?}, syllables = {:?}", count, word.syllables.iter().map(|x| word.text[x.clone()].to_string()).collect::<Vec<String>>());
                 match (count, syllables) {
                     (c, s) if c < n && n < s => None,
-                    (c, s) if c == n && n < s => {
+                    (c, s) if c == n => {
                         rest.push(word);
                         Some((acc, rest, c))
                     }

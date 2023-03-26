@@ -59,5 +59,14 @@ fn syllables_word<T: Into<String>> (input: T) -> Word {
         }
         _ => syllables
     };
+
+    let syllables = match &syllables[..] {
+        [x @ .., a, b] if !s[b.clone()].chars().any(|x| vowels.contains(&x)) => {
+            let mut y = x.to_vec();
+            y.push(a.start..b.end);
+            y
+        }
+        _ => syllables
+    };
     Word{text: s, syllables}
 }

@@ -14,6 +14,27 @@ pub struct Word {
     pub syllables: Vec<Syllable>,
 }
 
+impl Word {
+    fn trim_syllables<F>(&self, predicate: F) -> Self 
+        where F: Fn(String, &Syllable) -> bool
+    {
+        let text = self.text.clone();
+        let syllables = match &self.syllables[..] {
+            [x @ .., a, b] if predicate(text.clone(),a) => {
+                let mut y = x.to_vec();
+                y.push(a.start..b.end);
+                y
+            }
+            _ => self.syllables.clone()
+        };
+        Word {
+            text,
+            syllables,
+        }
+    }
+}
+
+
 pub fn syllables<'a, T: Into<String>> (input: T) -> Vec<Word> {
     let s: String = input.into();
     s.split_ascii_whitespace()
@@ -45,28 +66,7 @@ fn syllables_word<T: Into<String>> (input: T) -> Word {
                 (true, false, _) => {acc.push(i..j); (acc, j, j + 1)}
                 _ => (acc, i, j + 1)
         }});
-    let syllables = match &syllables[..] {
-        [.., b] if s[b.clone()].ends_with("ie") => syllables,
-        [x @ .., a, b] if s[b.clone()].ends_with('e') => {
-            let mut y = x.to_vec();
-            y.push(a.start..b.end);
-            y
-        }
-        [x @ .., a, b] => {
-            println!("x = {x:?}, a = {a:?}, b = {b:?}");
-            println!("a = {:?}, b = {:?}", &s[a.clone()], &s[b.clone()]);
-            syllables
-        }
-        _ => syllables
-    };
 
-    let syllables = match &syllables[..] {
-        [x @ .., a, b] if !s[b.clone()].chars().any(|x| vowels.contains(&x)) => {
-            let mut y = x.to_vec();
-            y.push(a.start..b.end);
-            y
-        }
-        _ => syllables
-    };
-    Word{text: s, syllables}
+    Word {text: s.clone(), syllables}.trim_syllables(|text,a| text[a.clone()].ends_with('e'))
+                                     .trim_syllables(|text,a| !text[a.clone()].chars().any(|x| vowels.contains(&x)))
 }

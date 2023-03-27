@@ -1,4 +1,4 @@
-use crate::syllables::Sentence;
+use crate::sentence::Sentence;
 
 #[derive(PartialEq)]
 #[derive(Debug)]
@@ -13,7 +13,7 @@ impl std::fmt::Display for Haiku {
 impl Haiku {
     pub fn from<T: Into<Sentence>>(value: T) -> Option<Haiku> {
         let words: Sentence = value.into();
-        
+
         let (sen1, rest) = verse(words, 5)?;
         let (sen2, rest) = verse(rest, 7)?;
         let (sen3, rest) = verse(rest, 5)?;

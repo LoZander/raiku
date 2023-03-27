@@ -8,10 +8,19 @@ const VOWELS: [char; 6] = ['a','e','i','o','u','y'];
 type Syllable = Range<usize>;
 
 #[derive(Debug)]
-#[derive(PartialEq)]
 pub struct Word {
     pub text: String,
     pub syllables: Vec<Syllable>,
+}
+
+impl std::fmt::Display for Word {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let syllables = self.syllables.iter()
+                .map(|x| self.text[x.clone()].to_string())
+                .reduce(|acc, x| format!("{}, {}", acc, x))
+                .unwrap_or_default();
+        write!(f, "{} [{}]", self.text, syllables)
+    }
 }
 
 impl Word {
@@ -20,7 +29,7 @@ impl Word {
     {
         let text = self.text.clone();
         let syllables = match &self.syllables[..] {
-            [x @ .., a, b] if predicate(text.clone(),a) => {
+            [x @ .., a, b] if predicate(text.clone(),b) => {
                 let mut y = x.to_vec();
                 y.push(a.start..b.end);
                 y
@@ -34,8 +43,44 @@ impl Word {
     }
 }
 
+pub struct Sentence(Vec<Word>);
+impl Sentence {
+    pub fn new() -> Self {
+        Sentence(Vec::new())
+    }
 
-pub fn syllables<'a, T: Into<String>> (input: T) -> Vec<Word> {
+    pub fn push(&mut self, item: Word) {
+        self.0.push(item)
+    }
+}
+
+impl std::fmt::Display for Sentence {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0.iter().map(|x| x.to_string()).reduce(|acc,x| format!("{}, {}", acc, x)).unwrap_or_default())
+    }
+}
+
+impl IntoIterator for Sentence {
+    type Item = Word;
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.into_iter()
+    }
+}
+
+impl FromIterator<Word> for Sentence {
+    fn from_iter<T: IntoIterator<Item = Word>>(iter: T) -> Self {
+        let mut c = Sentence::new();
+
+        for i in iter {
+            c.0.push(i);
+        }
+
+        c
+    }
+}
+
+pub fn syllables<'a, T: Into<String>> (input: T) -> Sentence {
     let s: String = input.into();
     s.split_ascii_whitespace()
      .into_iter()

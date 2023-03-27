@@ -2,7 +2,7 @@ use std::{collections::HashSet, ops::Range};
 use itertools::Itertools;
 
 
-const CONSONANTS: [char; 18] = ['b','c','d','f','h','k','l','m','n','p','q','r','s','t','v','w','x','z'];
+//const CONSONANTS: [char; 18] = ['b','c','d','f','h','k','l','m','n','p','q','r','s','t','v','w','x','z'];
 const VOWELS: [char; 6] = ['a','e','i','o','u','y'];
 
 type Syllable = Range<usize>;
@@ -25,11 +25,11 @@ impl std::fmt::Display for Word {
 
 impl Word {
     fn trim_syllables<F>(&self, predicate: F) -> Self 
-        where F: Fn(String, &Syllable) -> bool
+        where F: Fn(String, &Syllable, &Syllable) -> bool
     {
         let text = self.text.clone();
         let syllables = match &self.syllables[..] {
-            [x @ .., a, b] if predicate(text.clone(),b) => {
+            [x @ .., a, b] if predicate(text.clone(), a, b) => {
                 let mut y = x.to_vec();
                 y.push(a.start..b.end);
                 y
@@ -92,7 +92,6 @@ pub fn syllables<'a, T: Into<String>> (input: T) -> Sentence {
 fn syllables_word<T: Into<String>> (input: T) -> Word {
     let s: String = input.into();
     let vowels = HashSet::from(VOWELS);
-    let consonants = HashSet::from(CONSONANTS);
 
     if s.len() == 1 && vowels.contains(&s.chars().next().unwrap()) {
         return Word{text: s.clone(), syllables: vec![0..s.len()]}
@@ -112,6 +111,6 @@ fn syllables_word<T: Into<String>> (input: T) -> Word {
                 _ => (acc, i, j + 1)
         }});
 
-    Word {text: s.clone(), syllables}.trim_syllables(|text,a| text[a.clone()].ends_with('e'))
-                                     .trim_syllables(|text,a| !text[a.clone()].chars().any(|x| vowels.contains(&x)))
+    Word {text: s.clone(), syllables}.trim_syllables(|text,a,b| text[b.clone()].ends_with('e') & !text[a.start..b.end].ends_with("ide"))
+                                     .trim_syllables(|text,_,b| !text[b.clone()].chars().any(|x| vowels.contains(&x)))
 }

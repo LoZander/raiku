@@ -3,6 +3,10 @@ name = "raiku"
 version = "0.1.0"
 edition = "2021"
 
+# Build the profiler runtime (required when compiling with options that depend
+# on this runtime, such as `-C profile-generate` or `-C instrument-coverage`).
+profiler = true
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]

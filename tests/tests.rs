@@ -1,5 +1,12 @@
 use raiku::{self, haiku, syllables::Word};
 
+// To run tests with coverage do
+// To test with coverage run `test_coverage.sh` with either 
+//      - report (for procentage)
+//      - or show (for details)
+// Note: the `objects` (as defined in the script) correspond to the src .rs files, and must be
+// manually updated if new files are added to the project
+
 #[test]
 fn haiku_test() {
     let actual = haiku("this is a test of the way haiku is made here that is kind of cool").unwrap();

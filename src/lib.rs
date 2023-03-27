@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use syllables::{Word, syllables};
+use syllables::Sentence;
 
 pub fn add(left: usize, right: usize) -> usize {
     left + right
@@ -18,16 +18,16 @@ impl Display for Haiku {
 
 pub fn haiku<T: Into<String>>(text: T) -> Option<Haiku> {
     let words = syllables::syllables(text);
-    println!("{words:?}");
+    println!("{words}");
     let (sen1, words) = verse(words, 5)?;
     let (sen2, words) = verse(words, 7)?;
     let (sen3, _) = verse(words, 5)?;
     Some(Haiku(sen1,sen2,sen3))
 }
 
-fn verse(words: Vec<Word>, n: u32) -> Option<(String,Vec<Word>)> {
-    let (verse, rest, count) = words.into_iter()
-         .fold(Some((String::new(), vec![], 0)), |option, word| {
+fn verse(words: Sentence, n: u32) -> Option<(String, Sentence)> {
+    let (verse, rest, _) = words.into_iter()
+         .fold(Some((String::new(), Sentence::new(), 0)), |option, word| {
             option.and_then(|(acc, mut rest, count)| {
                 let syllables = count + word.syllables.len() as u32;
                 println!("count = {:?}, syllables = {:?}", count, word.syllables.iter().map(|x| word.text[x.clone()].to_string()).collect::<Vec<String>>());

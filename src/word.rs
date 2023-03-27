@@ -1,8 +1,6 @@
 use std::{collections::HashSet, ops::Range};
 use itertools::Itertools;
 
-
-//const CONSONANTS: [char; 18] = ['b','c','d','f','h','k','l','m','n','p','q','r','s','t','v','w','x','z'];
 const VOWELS: [char; 6] = ['a','e','i','o','u','y'];
 
 type Syllable = Range<usize>;
@@ -84,6 +82,14 @@ impl Word {
                                                 !text[b.clone()].ends_with("ie"))
     }
 
+    pub fn len(&self) -> usize {
+        self.text.len()
+    }
+
+    pub fn syllable_count(&self) -> usize {
+        self.syllables.len()
+    }
+
     fn trim_syllables<F>(&self, predicate: F) -> Self 
         where F: Fn(String, &Syllable, &Syllable) -> bool
     {
@@ -142,5 +148,57 @@ mod tests {
     fn flywheel_is_2_syllables_test() {
         let actual = Word::from("flywheel").syllables.len();
         assert_eq!(actual, 2)
+    }
+
+    #[test]
+    fn word_len_test() {
+        let word: Word = "longevity".into();
+        assert_eq!(word.len(), 9)
+    }
+
+    #[test]
+    fn word_syllable_count() {
+        let word: Word = "wilderness".into();
+        assert_eq!(word.syllable_count(), 3)
+    }
+
+    #[test]
+    fn word_from_string_test() {
+        let word: Word = String::from("wilderness").into();
+        assert_eq!(word.text, "wilderness");
+        assert_eq!(word.syllable_count(), 3)
+    }
+
+    #[test]
+    fn word_from_str_ref_test() {
+        let word: Word = "longevity".into();
+        assert_eq!(word.text, "longevity");
+        assert_eq!(word.syllable_count(), 4)
+    }
+
+    #[test]
+    fn word_from_char_test() {
+        let word: Word = 'i'.into();
+        assert_eq!(word.text, "i");
+        assert_eq!(word.syllable_count(), 1)
+    }
+
+    #[test]
+    fn word_from_boxed_str() {
+        let boxed: Box<str> = String::from("wilderness").into_boxed_str();
+        let word: Word = boxed.into();
+
+        assert_eq!(word.text, "wilderness");
+        assert_eq!(word.syllable_count(), 3)
+    }
+
+    #[test]
+    fn word_from_mut_str() {
+        let mut string = String::from("wilderness");
+        let mut_str: &mut str = string.as_mut_str();
+        let word: Word = mut_str.into();
+
+        assert_eq!(word.text, "wilderness");
+        assert_eq!(word.syllable_count(), 3)
     }
 }

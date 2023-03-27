@@ -14,16 +14,16 @@ clean () {
 }
 
 report () {
-    llvm-cov report --use-color --ignore-filename-regex='/.cargo/registry' $objects
+    llvm-cov report --use-color --ignore-filename-regex='/.cargo/registry' --instr-profile=rust_words.profdata $objects
 }
 
 show () {
-    llvm-cov show --use-color --ignore-filename-regex='/.cargo/registry' $objects --show-instantiations --show-line-counts-or-regions --Xdemangler=rustfilt | less -R
+    llvm-cov show --use-color --ignore-filename-regex='/.cargo/registry' --instr-profile=rust_words.profdata $objects --show-instantiations --show-line-counts-or-regions --Xdemangler=rustfilt | less -R
 }
 
-objects="--instr-profile=raiku.profdata --object target/debug/deps/raiku-8fdcc19740f44acd --object target/debug/deps/raiku-56a01c0338693aad --object target/debug/deps/raiku-262244a53f1e9d91"
+objects="--object target/debug/deps/rust_words-50e1691ac3fe6311 --object target/debug/deps/rust_words-9385d823f8572727 --object target/debug/deps/rust_words-9870031fe5c5a151"
 RUSTFLAGS="-C instrument-coverage" cargo test --tests
-llvm-profdata merge -sparse default_*.profraw -o raiku.profdata
+llvm-profdata merge -sparse default_*.profraw -o rust_words.profdata
 
 if [ "$1" = "report" ]; then
     report

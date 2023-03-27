@@ -126,6 +126,15 @@ impl Sentence {
     {
         Sentence(value.into_iter().map(<I as IntoIterator>::Item::into).collect())
     }
+
+    pub fn word_count(self) -> usize {
+        self.0.len()
+    }
+
+    pub fn syllable_count(self) -> usize {
+        self.0.iter().map(|x| x.syllables.len()).sum()
+    }
+
 }
 
 impl From<String> for Sentence {

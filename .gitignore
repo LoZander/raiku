@@ -1,4 +1,11 @@
+# VSCode
+.vscode
+
+
+# Rust
 /target
 /Cargo.lock
+
+# Rust coverage
 *.profraw
 *.profdata

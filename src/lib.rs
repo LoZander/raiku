@@ -13,7 +13,7 @@ impl std::fmt::Display for Haiku {
 }
 
 pub fn haiku<T: Into<String>>(text: T) -> Option<Haiku> {
-    let words = syllables::syllables(text);
+    let words: Sentence = text.into().into();
     println!("{words}");
     let (sen1, words) = verse(words, 5)?;
     let (sen2, words) = verse(words, 7)?;

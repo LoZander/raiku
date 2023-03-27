@@ -1,4 +1,4 @@
-use raiku;
+use raiku::{syllables::{Sentence}};
 fn main() {
-    println!("{}", raiku::syllables::syllables("haide smartypants"))
+    println!("{}", Sentence::from("haide smartypants"))
 }

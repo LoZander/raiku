@@ -33,7 +33,7 @@ fn verse(words: Sentence, n: u32) -> Option<(String, Sentence)> {
                 println!("count = {:?}, syllables = {:?}", count, word.syllables.iter().map(|x| word.text[x.clone()].to_string()).collect::<Vec<String>>());
                 match (count, syllables) {
                     (c, s) if c < n && n < s => None,
-                    (c, s) if c == n => {
+                    (c, _) if c == n => {
                         rest.push(word);
                         Some((acc, rest, c))
                     }

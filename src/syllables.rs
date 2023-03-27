@@ -24,6 +24,10 @@ impl std::fmt::Display for Word {
 }
 
 impl Word {
+    pub fn from<T: Into<String>>(from: T) -> Self {
+        syllables_word(from)
+    }
+
     fn trim_syllables<F>(&self, predicate: F) -> Self 
         where F: Fn(String, &Syllable, &Syllable) -> bool
     {
@@ -51,6 +55,10 @@ impl Sentence {
 
     pub fn push(&mut self, item: Word) {
         self.0.push(item)
+    }
+
+    pub fn from<T: Into<String>>(item: T) -> Self {
+        syllables(item)
     }
 }
 
@@ -80,7 +88,7 @@ impl FromIterator<Word> for Sentence {
     }
 }
 
-pub fn syllables<'a, T: Into<String>> (input: T) -> Sentence {
+pub fn syllables<T: Into<String>> (input: T) -> Sentence {
     let s: String = input.into();
     s.split_ascii_whitespace()
      .into_iter()
@@ -111,6 +119,9 @@ fn syllables_word<T: Into<String>> (input: T) -> Word {
                 _ => (acc, i, j + 1)
         }});
 
-    Word {text: s.clone(), syllables}.trim_syllables(|text,a,b| text[b.clone()].ends_with('e') & !text[a.start..b.end].ends_with("ide"))
-                                     .trim_syllables(|text,_,b| !text[b.clone()].chars().any(|x| vowels.contains(&x)))
+        Word {text: s.clone(), syllables}.trim_syllables(|text,_,b| !text[b.clone()].chars().any(|x| vowels.contains(&x)))
+                                         .trim_syllables(|text,a,b| 
+                                                text[b.clone()].ends_with('e') & 
+                                                !text[a.start..b.end].ends_with("aide") &
+                                                !text[b.clone()].ends_with("ie"))
 }

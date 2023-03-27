@@ -10,13 +10,19 @@ impl std::fmt::Display for Haiku {
     }
 }
 
-pub fn haiku<T: Into<String>>(text: T) -> Option<Haiku> {
-    let words: Sentence = text.into().into();
-    println!("{words}");
-    let (sen1, words) = verse(words, 5)?;
-    let (sen2, words) = verse(words, 7)?;
-    let (sen3, _) = verse(words, 5)?;
-    Some(Haiku(sen1.trim().into(),sen2.trim().into(),sen3.trim().into()))
+impl Haiku {
+    pub fn from<T: Into<Sentence>>(value: T) -> Option<Haiku> {
+        let words: Sentence = value.into();
+        
+        let (sen1, rest) = verse(words, 5)?;
+        let (sen2, rest) = verse(rest, 7)?;
+        let (sen3, rest) = verse(rest, 5)?;
+
+        match rest.word_count() {
+            0 => Some(Haiku(sen1.trim().into(),sen2.trim().into(),sen3.trim().into())),
+            _ => None
+        }
+    }
 }
 
 fn verse(words: Sentence, n: u32) -> Option<(String, Sentence)> {
@@ -39,14 +45,20 @@ fn verse(words: Sentence, n: u32) -> Option<(String, Sentence)> {
 
 #[cfg(test)]
 mod tests {
-    use crate::haiku::haiku;
+    use crate::haiku::{Haiku};
 
     #[test]
     fn haiku_test() {
-        let actual = haiku("this is a test of the way haiku is made here that is kind of cool").unwrap();
+        let Haiku(sen1, sen2, sen3) = Haiku::from("this is a test of the way haiku is made here that is kind of cool").unwrap();
 
-        assert_eq!(actual.0, "this is a test of");
-        assert_eq!(actual.1, "the way haiku is made here");
-        assert_eq!(actual.2, "that is kind of cool")
+        assert_eq!(sen1, "this is a test of");
+        assert_eq!(sen2, "the way haiku is made here");
+        assert_eq!(sen3, "that is kind of cool")
+    }
+
+    #[test]
+    fn test_no_haiku_from_long_sentence() {
+        let haiku = Haiku::from("this is a test of the way haiku is made here that is kind of cool bla bla bla");
+        assert!(matches!(haiku, None))
     }
 }

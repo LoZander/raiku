@@ -240,3 +240,45 @@ impl FromIterator<Word> for Sentence {
         c
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::syllables::Word;
+
+    #[test]
+    fn made_is_1_syllable_test() {
+        let actual = Word::from("made").syllables.len();
+
+        assert_eq!(actual, 1)
+    }
+
+    #[test]
+    fn haide_is_2_syllables_test() {
+        let actual = Word::from("haide").syllables.len();
+        assert_eq!(actual, 2)
+    }
+
+    #[test]
+    fn hide_is_1_syllable_test() {
+        let actual = Word::from("hide").syllables.len();
+        assert_eq!(actual, 1)
+    }
+
+    #[test]
+    fn jamie_is_2_syllables_test() {
+        let actual = Word::from("jamie").syllables.len();
+        assert_eq!(actual, 2)
+    }
+
+    #[test]
+    fn fly_is_1_syllable_test() {
+        let actual = Word::from("fly").syllables.len();
+        assert_eq!(actual, 1)
+    }
+
+    #[test]
+    fn flywheel_is_2_syllables_test() {
+        let actual = Word::from("flywheel").syllables.len();
+        assert_eq!(actual, 2)
+    }
+}

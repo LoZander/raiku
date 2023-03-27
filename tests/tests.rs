@@ -4,8 +4,9 @@ use raiku::{self, haiku, syllables::Word};
 // To test with coverage run `test_coverage.sh` with either 
 //      - report (for procentage)
 //      - or show (for details)
+// The coverage files are removed afterwards, but can be kept with optional argument --keep.
 // Note: the `objects` (as defined in the script) correspond to the src .rs files, and must be
-// manually updated if new files are added to the project
+// manually updated if new files are added to the project.
 
 #[test]
 fn haiku_test() {

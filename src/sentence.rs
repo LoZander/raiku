@@ -303,14 +303,12 @@ mod tests {
     #[test]
     fn syllable_count_test() {
         let sen: Sentence = "rayman is an often forgotten gem of the past".into();
-        
         assert_eq!(sen.syllable_count(), 13)
     }
 
     #[test]
     fn get_in_bounds_test() {
         let sen: Sentence = "blind bats still fly".into();
-
         assert_eq!(sen.get(2).unwrap(), &Word::from("still"))
     }
 }

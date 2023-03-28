@@ -1,6 +1,7 @@
 use std::{collections::HashSet, ops::Range};
 use itertools::Itertools;
 
+const _CONSONANTS: [char; 18] = ['b','c','d','f','h','k','l','m','n','p','q','r','s','t','v','w','x','z'];
 const VOWELS: [char; 6] = ['a','e','i','o','u','y'];
 
 type Syllable = Range<usize>;
@@ -94,11 +95,16 @@ impl Word {
                     _ => (acc, i, j + 1)
             }});
 
-        Word {text: s, syllables}.trim_syllables(|text,_,b| !text[b.clone()].chars().any(|x| vowels.contains(&x)))
-                                            .trim_syllables(|text,a,b| 
-                                                text[b.clone()].ends_with('e') & 
-                                                !text[a.start..b.end].ends_with("aide") &
-                                                !text[b.clone()].ends_with("ie"))
+        Word {text: s, syllables}.merge_last_syllables(|text,_,b| !text[b.clone()].chars().any(|x| vowels.contains(&x)))
+                                 .merge_last_syllables(|text,a,b| {
+                                    text[b.clone()].trim_end_matches('.').ends_with('e') & 
+                                    !text[a.start..b.end].trim_end_matches('.').ends_with("aide") &
+                                    !text[b.clone()].ends_with("ie")
+                                })
+                                 .merge_last_syllables(|text, a, b| text[a.start..b.end].ends_with("es"))
+                                 .merge_first_syllables(|text, a, b| text[a.start..b.end].starts_with("awe"))
+                                 
+                                    
     }
 
     pub fn len(&self) -> usize {
@@ -113,12 +119,11 @@ impl Word {
         self.syllables.len()
     }
 
-    fn trim_syllables<F>(&self, predicate: F) -> Self 
-        where F: Fn(String, &Syllable, &Syllable) -> bool
+    fn merge_last_syllables<F>(&self, predicate: F) -> Self 
+        where F: FnOnce(&str, &Syllable, &Syllable) -> bool
     {
-        let text = self.text.clone();
         let syllables = match &self.syllables[..] {
-            [x @ .., a, b] if predicate(text.clone(), a, b) => {
+            [x @ .., a, b] if predicate(&self.text, a, b) => {
                 let mut y = x.to_vec();
                 y.push(a.start..b.end);
                 y
@@ -126,8 +131,25 @@ impl Word {
             _ => self.syllables.clone()
         };
         Word {
-            text,
             syllables,
+            ..self.clone()
+        }
+    }
+
+    fn merge_first_syllables<F>(&self, predicate: F) -> Self 
+        where F: FnOnce(&str, &Syllable, &Syllable) -> bool
+    {
+        let syllables = match &self.syllables[..] {
+            [a, b, x @ ..] if predicate(&self.text, a, b) => {
+                let mut y = x.to_vec();
+                y.insert(0, a.start..b.end);
+                y
+            }
+            _ => self.syllables.clone()
+        };
+        Word {
+            syllables,
+            ..self.clone()
         }
     }
 }
@@ -223,5 +245,17 @@ mod tests {
 
         assert_eq!(word.text, "wilderness");
         assert_eq!(word.syllable_count(), 3)
+    }
+
+    #[test]
+    fn awesome_is_2_syllable() {
+        let word: Word = "awesome".into();
+        assert_eq!(word.syllable_count(), 2)
+    }
+
+    #[test]
+    fn times_is_1_syllable() {
+        let word: Word = "times".into();
+        assert_eq!(word.syllable_count(), 1)
     }
 }

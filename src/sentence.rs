@@ -10,13 +10,13 @@ impl Sentence {
         self.0.push(item)
     }
 
-    pub fn from<T: Into<String>>(value: T) -> Self {
+    fn from<T: Into<String>>(value: T) -> Self {
         let s: String = value.into();
         let collection = s.split_ascii_whitespace();
         Self::from_collection(collection)
     }
 
-    pub fn from_collection<I>(value: I) -> Self 
+    fn from_collection<I>(value: I) -> Self 
         where 
             I: IntoIterator,
             I::Item: Into<Word>,
@@ -34,9 +34,39 @@ impl Sentence {
 
 }
 
+impl Default for Sentence {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl From<String> for Sentence {
     fn from(value: String) -> Self {
         Self::from(value)
+    }
+}
+
+impl From<Sentence> for String {
+    fn from(value: Sentence) -> Self {
+        value.into_iter().map(Word::into).reduce(|acc,x| format!("{} {}", acc, x)).unwrap_or_default()
+    }
+}
+
+impl<T: From<Word>> From<Sentence> for Vec<T> {
+    fn from(value: Sentence) -> Self {
+        value.into_iter().map(Word::into).collect()
+    }
+}
+
+impl From<Vec<String>> for Sentence {
+    fn from(value: Vec<String>) -> Self {
+        Self::from_collection(value)
+    }
+}
+
+impl From<Vec<Word>> for Sentence {
+    fn from(value: Vec<Word>) -> Self {
+        Sentence(value)
     }
 }
 
@@ -52,27 +82,22 @@ impl From<Box<str>> for Sentence {
     }
 }
 
+impl From<Sentence> for Box<str> {
+    fn from(value: Sentence) -> Self {
+        let string: String = value.into();
+        string.into_boxed_str()
+    }
+}
+
 impl From<&mut str> for Sentence {
     fn from(value: &mut str) -> Self {
         Self::from(value)
     }
 }
 
-impl From<Vec<Word>> for Sentence {
-    fn from(value: Vec<Word>) -> Self {
-        Self::from_collection(value)
-    }
-}
-
 impl From<&[Word]> for Sentence {
     fn from(value: &[Word]) -> Self {
         Self::from_collection(value.to_owned())
-    }
-}
-
-impl From<Vec<String>> for Sentence {
-    fn from(value: Vec<String>) -> Self {
-        Self::from_collection(value)
     }
 }
 
@@ -136,4 +161,19 @@ impl FromIterator<Word> for Sentence {
 
         c
     }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::word::Word;
+
+    use super::Sentence;
+
+    /* #[test]
+    fn sentence_from_string_test() {
+        let sen: Sentence = String::from("can savannah have the greenest eyes?").into();
+        assert!(matches!(strs,
+            &["can", "savannah", "have", "the", "greenest", "eyes?"]
+        ))
+    } */
 }

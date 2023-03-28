@@ -18,6 +18,18 @@ impl From<String> for Word {
     }
 }
 
+impl From<Word> for String {
+    fn from(value: Word) -> Self {
+        value.text
+    }
+}
+
+impl<T: From<char>> From<Word> for Vec<T> {
+    fn from(value: Word) -> Self {
+        value.text.chars().map(char::into).collect()
+    }
+}
+
 impl From<&str> for Word {
     fn from(value: &str) -> Self {
         Self::from(value)
@@ -33,6 +45,12 @@ impl From<char> for Word {
 impl From<Box<str>> for Word {
     fn from(value: Box<str>) -> Self {
         Self::from(value)
+    }
+}
+
+impl From<Word> for Box<str> {
+    fn from(value: Word) -> Self {
+        value.text.into_boxed_str()
     }
 }
 
@@ -75,7 +93,7 @@ impl Word {
                     _ => (acc, i, j + 1)
             }});
 
-        Word {text: s.clone(), syllables}.trim_syllables(|text,_,b| !text[b.clone()].chars().any(|x| vowels.contains(&x)))
+        Word {text: s, syllables}.trim_syllables(|text,_,b| !text[b.clone()].chars().any(|x| vowels.contains(&x)))
                                             .trim_syllables(|text,a,b| 
                                                 text[b.clone()].ends_with('e') & 
                                                 !text[a.start..b.end].ends_with("aide") &
@@ -84,6 +102,10 @@ impl Word {
 
     pub fn len(&self) -> usize {
         self.text.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
     }
 
     pub fn syllable_count(&self) -> usize {

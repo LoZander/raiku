@@ -2,6 +2,9 @@ use std::{slice::SliceIndex, ops::Index};
 
 use crate::word::Word;
 
+#[derive(Debug)]
+#[derive(PartialEq)]
+#[derive(Clone)]
 pub struct Sentence(Vec<Word>);
 impl Sentence {
     pub fn new() -> Self {
@@ -255,5 +258,59 @@ mod tests {
         assert_eq!(sen[3], "the".into());
         assert_eq!(sen[4], "greenest".into());
         assert_eq!(sen[5], "eyes?".into())
+    }
+
+    #[test]
+    fn string_from_sentence_test() {
+        let string: String = "can savannah have the greenest eyes?".into();
+        let sen: Sentence = string.clone().into();
+        let sen_string: String = sen.into();
+        assert_eq!(sen_string, string)
+    }
+
+    #[test]
+    fn boxed_str_from_sentence_test() {
+        let string: String = "can savannah have the greenest eyes?".into();
+        let sen: Sentence = string.clone().into();
+        let sen_str: Box<str> = sen.into();
+        assert_eq!(sen_str, string.into_boxed_str())
+    }
+
+    #[test]
+    fn from_to_iterator_test() {
+        let sen: Sentence = "can savannah have the greenest eyes?".into();
+        let iter = sen.clone().into_iter();
+        let sen_2: Sentence = iter.collect();
+
+        assert_eq!(sen, sen_2)
+    }
+
+    #[test]
+    fn string_vec_from_sentence_test() {
+        let sen: Sentence = "twingle boss twins, god damn rowing the boat".into();
+        let words: Vec<String> = sen.into();
+        
+        assert_eq!(words[0], "twingle");
+        assert_eq!(words[1], "boss");
+        assert_eq!(words[2], "twins,");
+        assert_eq!(words[3], "god");
+        assert_eq!(words[4], "damn");
+        assert_eq!(words[5], "rowing");
+        assert_eq!(words[6], "the");
+        assert_eq!(words[7], "boat");
+    }
+
+    #[test]
+    fn syllable_count_test() {
+        let sen: Sentence = "rayman is an often forgotten gem of the past".into();
+        
+        assert_eq!(sen.syllable_count(), 13)
+    }
+
+    #[test]
+    fn get_in_bounds_test() {
+        let sen: Sentence = "blind bats still fly".into();
+
+        assert_eq!(sen.get(2).unwrap(), &Word::from("still"))
     }
 }

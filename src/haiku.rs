@@ -45,7 +45,7 @@ fn verse(words: Sentence, n: u32) -> Option<(String, Sentence)> {
 
 #[cfg(test)]
 mod tests {
-    use crate::haiku::{Haiku};
+    use crate::haiku::Haiku;
 
     #[test]
     fn haiku_test() {
@@ -59,6 +59,24 @@ mod tests {
     #[test]
     fn test_no_haiku_from_long_sentence() {
         let haiku = Haiku::from("this is a test of the way haiku is made here that is kind of cool bla bla bla");
+        assert!(matches!(haiku, None))
+    }
+
+    #[test]
+    fn invalid_first_verse_gives_no_haiku_test() {
+        let haiku = Haiku::from("rayman was revolutionary. There is no doubt about this. I enjoy the game.");
+        assert!(matches!(haiku, None))
+    }
+
+    #[test]
+    fn invalid_second_verse_gives_no_haiku_test() {
+        let haiku = Haiku::from("Imaginaerum is a really awesome album for sure. I'm pretty tired");
+        assert!(matches!(haiku, None))
+    }
+
+    #[test]
+    fn invalid_third_verse_gives_no_haiku_test() {
+        let haiku = Haiku::from("I don't read books much because I don't get around to do it significantly often");
         assert!(matches!(haiku, None))
     }
 }

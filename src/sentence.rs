@@ -1,3 +1,5 @@
+use std::{slice::SliceIndex, ops::Index};
+
 use crate::word::Word;
 
 pub struct Sentence(Vec<Word>);
@@ -8,6 +10,10 @@ impl Sentence {
 
     pub fn push(&mut self, item: Word) {
         self.0.push(item)
+    }
+
+    pub fn get<I: SliceIndex<[Word]>>(&self, index: I) -> Option<&I::Output>  {
+        self.0.get(index)
     }
 
     fn from<T: Into<String>>(value: T) -> Self {
@@ -40,6 +46,14 @@ impl Default for Sentence {
     }
 }
 
+impl Index<usize> for Sentence {
+    type Output = Word;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.0[index]
+    }
+}
+
 impl From<String> for Sentence {
     fn from(value: String) -> Self {
         Self::from(value)
@@ -58,15 +72,9 @@ impl<T: From<Word>> From<Sentence> for Vec<T> {
     }
 }
 
-impl From<Vec<String>> for Sentence {
-    fn from(value: Vec<String>) -> Self {
+impl<T: Into<Word>> From<Vec<T>> for Sentence {
+    fn from(value: Vec<T>) -> Self {
         Self::from_collection(value)
-    }
-}
-
-impl From<Vec<Word>> for Sentence {
-    fn from(value: Vec<Word>) -> Self {
-        Sentence(value)
     }
 }
 
@@ -95,45 +103,15 @@ impl From<&mut str> for Sentence {
     }
 }
 
-impl From<&[Word]> for Sentence {
-    fn from(value: &[Word]) -> Self {
-        Self::from_collection(value.to_owned())
+impl<const N: usize, T: Into<Word> + Clone> From<[T; N]> for Sentence {
+    fn from(value: [T; N]) -> Self {
+        value.to_vec().into()
     }
 }
 
-impl From<&[String]> for Sentence {
-    fn from(value: &[String]) -> Self {
-        Self::from_collection(value.to_owned())
-    }
-}
-
-impl From<Vec<&str>> for Sentence {
-    fn from(value: Vec<&str>) -> Self {
-        Self::from_collection(value)
-    }
-}
-
-impl From<&[&str]> for Sentence {
-    fn from(value: &[&str]) -> Self {
-        Self::from_collection(value.to_owned())
-    }
-}
-
-impl From<Vec<Box<str>>> for Sentence {
-    fn from(value: Vec<Box<str>>) -> Self {
-        Self::from_collection(value)
-    }
-}
-
-impl From<&[Box<str>]> for Sentence {
-    fn from(value: &[Box<str>]) -> Self {
-        Self::from_collection(value.to_owned())
-    }
-}
-
-impl From<Vec<&mut str>> for Sentence {
-    fn from(value: Vec<&mut str>) -> Self {
-        Self::from_collection(value)
+impl<T: Into<Word> + Clone> From<&[T]> for Sentence {
+    fn from(value: &[T]) -> Self {
+        value.to_vec().into()
     }
 }
 
@@ -169,11 +147,113 @@ mod tests {
 
     use super::Sentence;
 
-    /* #[test]
+    #[test]
     fn sentence_from_string_test() {
         let sen: Sentence = String::from("can savannah have the greenest eyes?").into();
-        assert!(matches!(strs,
-            &["can", "savannah", "have", "the", "greenest", "eyes?"]
-        ))
-    } */
+        assert_eq!(sen[0], "can".into());
+        assert_eq!(sen[1], "savannah".into());
+        assert_eq!(sen[2], "have".into());
+        assert_eq!(sen[3], "the".into());
+        assert_eq!(sen[4], "greenest".into());
+        assert_eq!(sen[5], "eyes?".into())
+    }
+
+    #[test]
+    fn sentence_from_words_test() {
+        let words: Vec<Word> = vec!["can".into(), "savannah".into(), "have".into(), "the".into(), "greenest".into(), "eyes?".into()];
+        let sen: Sentence = words.into();
+        assert_eq!(sen[0], "can".into());
+        assert_eq!(sen[1], "savannah".into());
+        assert_eq!(sen[2], "have".into());
+        assert_eq!(sen[3], "the".into());
+        assert_eq!(sen[4], "greenest".into());
+        assert_eq!(sen[5], "eyes?".into())
+    }
+
+    #[test]
+    fn sentence_from_str_test() {
+        let sen: Sentence = "can savannah have the greenest eyes?".into();
+        assert_eq!(sen[0], "can".into());
+        assert_eq!(sen[1], "savannah".into());
+        assert_eq!(sen[2], "have".into());
+        assert_eq!(sen[3], "the".into());
+        assert_eq!(sen[4], "greenest".into());
+        assert_eq!(sen[5], "eyes?".into())
+    }
+
+    #[test]
+    fn sentence_from_box_str_test() {
+        let boxed: Box<str> = "can savannah have the greenest eyes?".into();
+        let sen: Sentence = boxed.into();
+        assert_eq!(sen[0], "can".into());
+        assert_eq!(sen[1], "savannah".into());
+        assert_eq!(sen[2], "have".into());
+        assert_eq!(sen[3], "the".into());
+        assert_eq!(sen[4], "greenest".into());
+        assert_eq!(sen[5], "eyes?".into())
+    }
+
+    #[test]
+    fn sentence_from_mut_str_test() {
+        let mut string = "can savannah have the greenest eyes?".to_string();
+        let mut_str = string.as_mut_str();
+        let sen: Sentence = mut_str.into();
+        assert_eq!(sen[0], "can".into());
+        assert_eq!(sen[1], "savannah".into());
+        assert_eq!(sen[2], "have".into());
+        assert_eq!(sen[3], "the".into());
+        assert_eq!(sen[4], "greenest".into());
+        assert_eq!(sen[5], "eyes?".into())
+    }
+
+    #[test]
+    fn sentence_from_string_vec_test() {
+        let strings: Vec<String> = vec![
+            "can".into(), "savannah".into(), 
+            "have".into(), "the".into(), 
+            "greenest".into(), "eyes?".into()];
+        let sen: Sentence = strings.into();
+        assert_eq!(sen[0], "can".into());
+        assert_eq!(sen[1], "savannah".into());
+        assert_eq!(sen[2], "have".into());
+        assert_eq!(sen[3], "the".into());
+        assert_eq!(sen[4], "greenest".into());
+        assert_eq!(sen[5], "eyes?".into())
+    }
+
+    #[test]
+    fn sentence_from_str_vec_test() {
+        let strs: Vec<&str> = vec!["can", "savannah", "have", "the", "greenest", "eyes?"];
+        let sen: Sentence = strs.into();
+        assert_eq!(sen[0], "can".into());
+        assert_eq!(sen[1], "savannah".into());
+        assert_eq!(sen[2], "have".into());
+        assert_eq!(sen[3], "the".into());
+        assert_eq!(sen[4], "greenest".into());
+        assert_eq!(sen[5], "eyes?".into())
+    }
+
+    #[test]
+    fn sentence_from_str_array_ref_test() {
+        let strs: &[&str] = &["can", "savannah", "have", "the", "greenest", "eyes?"];
+        let sen: Sentence = strs.into();
+        assert_eq!(sen[0], "can".into());
+        assert_eq!(sen[1], "savannah".into());
+        assert_eq!(sen[2], "have".into());
+        assert_eq!(sen[3], "the".into());
+        assert_eq!(sen[4], "greenest".into());
+        assert_eq!(sen[5], "eyes?".into())
+    }
+
+    #[test]
+    fn sentence_from_str_array_test() {
+        let strs = ["can", "savannah", "have", "the", "greenest", "eyes?"];
+        let sen: Sentence = strs.into();
+        assert_eq!(sen[0], "can".into());
+        assert_eq!(sen[1], "savannah".into());
+        assert_eq!(sen[2], "have".into());
+        assert_eq!(sen[3], "the".into());
+        assert_eq!(sen[4], "greenest".into());
+        assert_eq!(sen[5], "eyes?".into())
+    }
 }

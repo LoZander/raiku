@@ -7,6 +7,7 @@ type Syllable = Range<usize>;
 
 #[derive(Clone)]
 #[derive(Debug)]
+#[derive(PartialEq)]
 pub struct Word {
     pub text: String,
     pub syllables: Vec<Syllable>,
